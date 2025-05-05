@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <main>
+    <main className="">
       <h1>AI Agent</h1>
     </main>
   );
