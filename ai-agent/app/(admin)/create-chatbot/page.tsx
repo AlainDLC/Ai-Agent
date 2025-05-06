@@ -1,9 +1,45 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import React from "react";
+import { useMutation } from "@apollo/client";
+import { CREATE_CHATBOT } from "@/graphql/mutations/mutations";
+import { useUser } from "@clerk/nextjs";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 function CreateChatbot() {
+  const { user } = useUser();
+  const [name, setName] = useState("");
+  const router = useRouter();
+
+  const [createChabot, { data, loading, error }] = useMutation(CREATE_CHATBOT, {
+    variables: {
+      clerk_user_id: user?.id,
+      name,
+      created_at: new Date().toISOString(),
+    },
+  });
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const data = await createChabot();
+      console.log("handleSubmit", data);
+
+      setName("");
+
+      router.push(`/edit-chatbot/${data.data.insertChatbots.id}`);
+    } catch (error) {
+      console.log("CreateChatbot", error);
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div
       className="flex flex-col items-center md:flex-row
@@ -15,15 +51,25 @@ function CreateChatbot() {
         <h2 className="font-light">
           Create a new chatbot to assist your conversations with your customers.
         </h2>
-        <form className="flex flex-col md:flex-row gap-5 mt-5">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col md:flex-row gap-5 mt-5"
+        >
           <Input
             placeholder="Chatbot Name..."
             className="max-w-lg"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             type="text"
             required
           />
-          <Button>Create Chatbot</Button>
+          <Button type="submit" disabled={loading || !name}>
+            {loading ? "Creating Chabot..." : "Create  Chatbot"}
+          </Button>
         </form>
+        <p className="text-green-500 mt-5 text-sm">
+          Example: Customer Support Chatbot
+        </p>
       </div>
     </div>
   );

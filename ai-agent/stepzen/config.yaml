@@ -1,4 +1,4 @@
 configurationset:
   - configuration:
       name: postgresql_config
-      uri: postgresql://ep-wispy-wildflower-abhl4cud-pooler.eu-west-2.aws.neon.tech/ai-boot?user=ai-boot_owner&password=npg_o4qM1hXPwDHV
+      uri: postgresql://ep-crimson-dew-a2dj8439-pooler.eu-central-1.aws.neon.tech/ai-bot?user=ai-bot_owner&password=npg_N7TPVF0xSmaH
