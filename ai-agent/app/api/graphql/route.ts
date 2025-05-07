@@ -12,9 +12,6 @@ export async function POST(request: Request) {
   const body = await request.json();
   const { query, variables } = body;
 
-  console.log("debug 1", query);
-  console.log("debug21", variables);
-
   try {
     let result;
 
@@ -35,7 +32,7 @@ export async function POST(request: Request) {
     }
 
     const data = result?.data;
-    console.log("DATA=>", data);
+
     return NextResponse.json(
       {
         data,

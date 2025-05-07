@@ -3,17 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useMutation } from "@apollo/client";
-import { CREATE_CHATBOT } from "@/graphql/mutations/mutations";
 import { useUser } from "@clerk/nextjs";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CREATE_CHATBOT } from "@/graphql/mutations/mutations";
 
 function CreateChatbot() {
   const { user } = useUser();
   const [name, setName] = useState("");
   const router = useRouter();
 
-  const [createChabot, { data, loading, error }] = useMutation(CREATE_CHATBOT, {
+  const [createChabot, { loading }] = useMutation(CREATE_CHATBOT, {
     variables: {
       clerk_user_id: user?.id,
       name,
@@ -26,7 +26,6 @@ function CreateChatbot() {
 
     try {
       const data = await createChabot();
-      console.log("handleSubmit", data);
 
       setName("");
 

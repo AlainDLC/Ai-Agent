@@ -16,12 +16,3 @@ export const CREATE_CHATBOT = gql`
     }
   }
 `;
-
-export const CREATE_CHATBOT1 = gql`
-  mutation CreateChatBot($clerk_user_id: String!, $name: String!) {
-    insertChatbots(clerk_user_id: $clerk_user_id, name: $name) {
-      id
-      name
-    }
-  }
-`;
