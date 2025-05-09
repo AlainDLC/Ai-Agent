@@ -7,15 +7,71 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_CHATBOT_BY_ID } from "@/graphql/queries/queries";
+import { GetChatbotByIdResponse, GetChatbotByIdVariables } from "@/types/types";
+import Characteristic from "@/app/components/Characteristic";
+import { DELETE_CHATBOT } from "@/graphql/mutations/mutations";
+import { redirect } from "next/navigation";
 
 function EditChatbot({ params: { id } }: { params: { id: string } }) {
-  const [url, setUrl] = useState("");
-  const [chabotName, setChatbotName] = useState("");
+  const [url, setUrl] = useState<string>("");
+  const [chabotName, setChatbotName] = useState<string>("");
+  const [newCharacteristic, setNewCharacteristic] = useState<string>("");
+  const [deleteChatbot] = useMutation(DELETE_CHATBOT, {
+    refetchQueries: ["GetChatbotById"],
+    awaitRefetchQueries: true,
+  });
+
+  const { data, loading, error } = useQuery<
+    GetChatbotByIdResponse,
+    GetChatbotByIdVariables
+  >(GET_CHATBOT_BY_ID, {
+    variables: { id },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setChatbotName(data.chatbots?.name);
+    }
+  }, [data]);
 
   useEffect(() => {
     const url = `${BASE_URL}/chatbot/${id}`;
     setUrl(url);
   }, [id]);
+
+  const handleUpdateChatbot = () => {};
+
+  const handleDeleteChatbot = async (id: string) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this chatbot?..."
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      const promise = deleteChatbot({ variables: { id } });
+      toast.promise(promise, {
+        loading: "Deleting...",
+        success: "Chatbot Successfully deleted!",
+        error: "Failed to delete chatbot",
+      });
+    } catch (error) {
+      console.log("handleDeleteChatbot", error);
+      toast.error("Failed to delete chatbot");
+    }
+  };
+
+  if (loading) {
+    <div className="mx-auto animate-spin p-10">
+      <Image src={"/.a.png"} height={10} width={10} alt="spin" />
+    </div>;
+  }
+
+  if (error) return <p>Error: {error.message}</p>;
+  //if (!data?.chatbots) return redirect("/view-chatbots");
 
   return (
     <div className="px-0 md:p-10">
@@ -46,12 +102,56 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         <Button
           variant="destructive"
           className="absolute top-2 right-2 h-8 w-2"
-          // onClick={() =>  handleDelete(id)}
+          onClick={() => handleDeleteChatbot(id)}
         >
           X
         </Button>
+        <div className="flex space-x-4">
+          <Image src={"/ai.png"} height={50} width={50} alt="ai" />
+
+          <form
+            onSubmit={handleUpdateChatbot}
+            className="flex flex-1 space-x-2 items-center"
+          >
+            <Input
+              value={chabotName}
+              onChange={(e) => setChatbotName(e.target.value)}
+              placeholder={chabotName}
+              required
+              className="w-full border-none bg-transparent text-xl font-bold 	text-transform: uppercase"
+            />
+            <Button type="submit" disabled={!chabotName}>
+              Update
+            </Button>
+          </form>
+        </div>
+        <h2 className="text-xl font-bold mt-10">
+          Heres what your AI knows....
+        </h2>
+        <p>
+          Your chatbot is equipped whit the fallowing information to assist you
+          in your coversations whit your customers & users
+        </p>
         <div>
-          <Image src={"/ai.png"} height={30} width={30} alt="ai" />
+          <form>
+            <Input
+              type="text"
+              placeholder="Examlpe: If cutsomers ask for price, provide pricing page: www.example.com/pricing"
+              value={newCharacteristic}
+              onChange={(e) => setNewCharacteristic(e.target.value)}
+            />
+            <Button type="submit" disabled={!newCharacteristic}>
+              Add
+            </Button>
+          </form>
+          <ul className="flex flex-wrap-reverse gap-5">
+            {data?.chatbots?.chatbot_characteristics?.map((characteristic) => (
+              <Characteristic
+                characteristic={characteristic}
+                key={characteristic.id}
+              />
+            ))}
+          </ul>
         </div>
       </section>
     </div>
