@@ -5,7 +5,7 @@ import { BASE_URL } from "@/graphql/apolloClient";
 import { Copy, Loader } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQuery } from "@apollo/client";
 import { GET_CHATBOT_BY_ID } from "@/graphql/queries/queries";
@@ -14,6 +14,7 @@ import Characteristic from "@/app/components/Characteristic";
 import {
   ADD_CHARACTERISTIC,
   DELETE_CHATBOT,
+  UPDATE_CHATBOT,
 } from "@/graphql/mutations/mutations";
 import { redirect } from "next/navigation";
 
@@ -27,6 +28,10 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
   });
 
   const [addCharacteristic] = useMutation(ADD_CHARACTERISTIC, {
+    refetchQueries: ["GetChatbotById"],
+  });
+
+  const [uptadeChatbot] = useMutation(UPDATE_CHATBOT, {
     refetchQueries: ["GetChatbotById"],
   });
 
@@ -48,7 +53,26 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
     setUrl(url);
   }, [id]);
 
-  const handleUpdateChatbot = () => {};
+  const handleUpdateChatbot = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const promise = uptadeChatbot({
+        variables: {
+          id,
+          name: chabotName,
+          created_at: new Date().toISOString(),
+        },
+      });
+
+      toast.promise(promise, {
+        loading: "Updating...",
+        success: "Chatbot Name Sucessfully updated!",
+        error: "Failed to Update Chatbot ",
+      });
+    } catch (err) {
+      console.error("Failed to Updating", err);
+    }
+  };
 
   const handleDeleteChatbot = async (id: string) => {
     const isConfirmed = window.confirm(
@@ -150,7 +174,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
               onChange={(e) => setChatbotName(e.target.value)}
               placeholder={chabotName}
               required
-              className="w-full border-none bg-transparent text-xl font-bold 	text-transform: uppercase"
+              className="w-full border-green-300 bg-transparent text-xl font-bold 	text-transform: uppercase"
             />
             <Button type="submit" disabled={!chabotName}>
               Update
@@ -164,19 +188,21 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
           Your chatbot is equipped whit the fallowing information to assist you
           in your coversations whit your customers & users
         </p>
-        <div>
+        <div className="bg-green-300 p-5 md:p-5 rounded-md mt-5">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleAddCharacteristic(newCharacteristic);
               setNewCharacteristic("");
             }}
+            className="flex  space-x-2 mb-5"
           >
             <Input
               type="text"
               placeholder="Examlpe: If cutsomers ask for price, provide pricing page: www.example.com/pricing"
               value={newCharacteristic}
               onChange={(e) => setNewCharacteristic(e.target.value)}
+              className="bg-white"
             />
             <Button type="submit" disabled={!newCharacteristic}>
               Add

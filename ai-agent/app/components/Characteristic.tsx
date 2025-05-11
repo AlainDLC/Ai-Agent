@@ -27,7 +27,10 @@ function Characteristic({
     }
   };
   return (
-    <li className="relative p-10 bg-white border rounded-md">
+    <li
+      key={characteristic.id}
+      className="relative p-10 bg-white border rounded-md"
+    >
       {characteristic.content}
       <OctagonMinus
         className="w-6 h-6 text-white fill-red-500 absolute top-1 right-1
