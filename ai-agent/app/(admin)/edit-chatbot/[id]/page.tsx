@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BASE_URL } from "@/graphql/apolloClient";
-import { Copy } from "lucide-react";
+import { Copy, Loader } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -11,7 +11,10 @@ import { useMutation, useQuery } from "@apollo/client";
 import { GET_CHATBOT_BY_ID } from "@/graphql/queries/queries";
 import { GetChatbotByIdResponse, GetChatbotByIdVariables } from "@/types/types";
 import Characteristic from "@/app/components/Characteristic";
-import { DELETE_CHATBOT } from "@/graphql/mutations/mutations";
+import {
+  ADD_CHARACTERISTIC,
+  DELETE_CHATBOT,
+} from "@/graphql/mutations/mutations";
 import { redirect } from "next/navigation";
 
 function EditChatbot({ params: { id } }: { params: { id: string } }) {
@@ -23,11 +26,15 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
     awaitRefetchQueries: true,
   });
 
+  const [addCharacteristic] = useMutation(ADD_CHARACTERISTIC, {
+    refetchQueries: ["GetChatbotById"],
+  });
+
   const { data, loading, error } = useQuery<
     GetChatbotByIdResponse,
     GetChatbotByIdVariables
   >(GET_CHATBOT_BY_ID, {
-    variables: { id },
+    variables: { id: String(id) },
   });
 
   useEffect(() => {
@@ -64,14 +71,39 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
     }
   };
 
+  const handleAddCharacteristic = async (content: string) => {
+    try {
+      const promise = addCharacteristic({
+        variables: {
+          chatbotId: Number(id),
+          content,
+          created_at: new Date().toISOString(),
+        },
+      });
+
+      toast.promise(promise, {
+        loading: "Adding...",
+        success: "Information added",
+        error: "Failed to Add Information ",
+      });
+    } catch (err) {
+      console.error("Failed to Add", err);
+    }
+  };
+
   if (loading) {
-    <div className="mx-auto animate-spin p-10">
-      <Image src={"/.a.png"} height={10} width={10} alt="spin" />
-    </div>;
+    return (
+      <div className="mx-auto animate-spin p-10">
+        <Loader className="h-6 w-6 ring-2" />
+      </div>
+    );
   }
 
   if (error) return <p>Error: {error.message}</p>;
-  //if (!data?.chatbots) return redirect("/view-chatbots");
+
+  if (!data?.chatbots) {
+    return redirect("/view-chatbots");
+  }
 
   return (
     <div className="px-0 md:p-10">
@@ -133,7 +165,13 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
           in your coversations whit your customers & users
         </p>
         <div>
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddCharacteristic(newCharacteristic);
+              setNewCharacteristic("");
+            }}
+          >
             <Input
               type="text"
               placeholder="Examlpe: If cutsomers ask for price, provide pricing page: www.example.com/pricing"
