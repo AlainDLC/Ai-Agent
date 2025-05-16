@@ -11,24 +11,24 @@ export const GET_CHATBOT_BY_ID = gql`
         created_at
         content
       }
-
-      chat_sessions(id: 10) {
-        created_at
+    }
+    chat_sessions(id: $id) {
+      created_at
+      id
+      guest_id
+      messages {
+        content
         id
-        guest_id
-        messages {
-          content
-          id
-          created_at
-        }
+        created_at
       }
     }
   }
 `;
 
 export const GET_CHATBOT_BY_USER = gql`
-  query GetChatbotByUser($clerk_user_id: String!) {
-    chatbots(clerk_user_id: $clerk_user_id) {
+  query GetChatbotByUser($clerk_user_id: String!, $id: Int!) {
+    chatbots(clerk_user_id: $clerk_user_id, id: $id) {
+      clerk_user_id
       id
       name
       created_at
@@ -60,10 +60,33 @@ export const GET_USER_CHATBOTS = gql`
       name
       chat_sessions {
         created_at
+        id
         guests {
           name
           email
         }
+      }
+    }
+  }
+`;
+
+export const GET_CHAT_SESSION_MESSAGE = gql`
+  query GetChatSessionMessage($id: Int!) {
+    chat_sessions(id: $id) {
+      id
+      created_at
+      messages {
+        id
+        content
+        created_at
+        sender
+      }
+      chatbots {
+        name
+      }
+      guests {
+        name
+        email
       }
     }
   }

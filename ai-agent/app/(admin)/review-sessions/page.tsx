@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import ChatBotSessions from "@/app/components/ChatBotSessions";
 import { GET_USER_CHATBOTS } from "@/graphql/queries/queries";
 import { serverClient } from "@/lib/server/serverClient";
 import {
@@ -25,8 +26,6 @@ async function ReviewSessions() {
     },
   });
 
-  console.log(chatbotsList);
-
   const sortedChatBotByUser: Chatbot[] = chatbotsList.map((chatbot) => ({
     ...chatbot,
     chat_sessions: [...chatbot.chat_sessions].sort(
@@ -35,7 +34,15 @@ async function ReviewSessions() {
     ),
   }));
 
-  return <div>få ut nåt</div>;
+  return (
+    <div className="flex-1 p-10">
+      <h1 className="text-xl lg:text-3xl font-semibold mt-10">Chat Sessions</h1>
+      <h2 className="mb-5">
+        Review all the chat sessions the chat bots have ad with your cutomers
+      </h2>
+      <ChatBotSessions chatbots={sortedChatBotByUser} />
+    </div>
+  );
 }
 
 export default ReviewSessions;
