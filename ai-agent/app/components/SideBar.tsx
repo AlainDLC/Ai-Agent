@@ -1,4 +1,4 @@
-import { BotMessageSquare, PencilLine, SearchIcon } from "lucide-react";
+import { BotMessageSquare, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -20,6 +20,8 @@ function SideBar() {
             </div>
           </Link>
         </li>
+
+        {/* 
         <li className="flex-1">
           <Link
             href="/view-chatbots"
@@ -30,10 +32,11 @@ function SideBar() {
             <PencilLine className="h-6 w-6 lg:h-8 lg:w-8" />
             <div className="hidden md:inline">
               <p className="text-xl">Edit</p>
-              <p className="text-sm font-extralight">New Chatbot</p>
+              <p className="text-sm font-extralight">Edit Chatbot</p>
             </div>
           </Link>
         </li>
+         */}
         <li className="flex-1">
           <Link
             href="/review-sessions"

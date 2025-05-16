@@ -13,6 +13,8 @@ function CreateChatbot() {
   const [name, setName] = useState("");
   const router = useRouter();
 
+  console.log(user);
+
   const [createChabot, { loading }] = useMutation(CREATE_CHATBOT, {
     variables: {
       clerk_user_id: user?.id,
