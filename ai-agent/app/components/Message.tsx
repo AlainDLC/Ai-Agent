@@ -37,7 +37,7 @@ function Messages({ messages }: { messages: Message[] }) {
 
             <div className={`chat-image avatar w-10 ${!isSender && "-mr-4"}`}>
               {isSender ? (
-                <Image src={"/ai.png"} height={20} width={20} alt="ai" />
+                <Image src={"/ai.png"} height={18} width={18} alt="ai" />
               ) : (
                 <UserCircle className="text-[#2991EE]" />
               )}
