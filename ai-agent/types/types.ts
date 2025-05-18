@@ -26,7 +26,7 @@ export interface ChatSessions {
   chatbot_id: number;
   guest_id: number | null;
   created_at: string;
-  message: Message[];
+  messages: Message[];
   guests: Guest;
 }
 
@@ -65,4 +65,12 @@ export interface GetChatSessionMessagesResponse {
 }
 export interface GetChatSessionMessagesVariables {
   id: number;
+}
+
+export interface MessagesByChatSessionsIdResponse {
+  chat_sessions: ChatSessions;
+}
+
+export interface MessagesByChatSessionsIdVariables {
+  chat_session_id: number;
 }

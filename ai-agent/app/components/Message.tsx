@@ -21,7 +21,7 @@ function Messages({ messages }: { messages: Message[] }) {
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto space-y-10 py-10 px-5 bg-white rounded-lg">
-      {messages.map((message) => {
+      {messages?.map((message) => {
         const isSender = message.sender !== "user";
 
         return (

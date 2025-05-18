@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
+import Messages from "@/app/components/Message";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,12 +14,20 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GET_CHATBOT_BY_ID } from "@/graphql/queries/queries";
+import {
+  GET_CHATBOT_BY_ID,
+  GET_MESSAGES_BY_CHAT_SESSION_ID,
+} from "@/graphql/queries/queries";
 import startNewChat from "@/lib/startNewChat";
-import { GetChatbotByIdResponse, Message } from "@/types/types";
+import {
+  GetChatbotByIdResponse,
+  Message,
+  MessagesByChatSessionsIdResponse,
+  MessagesByChatSessionsIdVariables,
+} from "@/types/types";
 import { useQuery } from "@apollo/client";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function ChatbotPage({ params: { id } }: { params: { id: string } }) {
   const [name, setName] = useState<string>("");
@@ -25,7 +35,32 @@ function ChatbotPage({ params: { id } }: { params: { id: string } }) {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [chatId, setChatId] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [messeage, seMessage] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  const { data: chatBotData } = useQuery<GetChatbotByIdResponse>(
+    GET_CHATBOT_BY_ID,
+    { variables: { id } }
+  );
+
+  const {
+    loading: loadingQuery,
+    error,
+    data,
+  } = useQuery<
+    MessagesByChatSessionsIdResponse,
+    MessagesByChatSessionsIdVariables
+  >(GET_MESSAGES_BY_CHAT_SESSION_ID, {
+    variables: { chat_session_id: chatId },
+    skip: !chatId,
+  });
+
+  console.log(data?.chat_sessions.messages);
+
+  useEffect(() => {
+    if (data) {
+      setMessages(data.chat_sessions.messages);
+    }
+  }, [data]);
 
   const handleInformationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,11 +72,6 @@ function ChatbotPage({ params: { id } }: { params: { id: string } }) {
     setLoading(false);
     setIsOpen(false);
   };
-
-  const { data: chatBotData } = useQuery<GetChatbotByIdResponse>(
-    GET_CHATBOT_BY_ID,
-    { variables: { id } }
-  );
 
   return (
     <div className="w-full flex bg-gray-100">
@@ -96,12 +126,12 @@ function ChatbotPage({ params: { id } }: { params: { id: string } }) {
         >
           <Image src={"/ai.png"} height={30} width={30} alt="ai" />
         </div>
-        <div>
-          <h1 className="truncate text-lg">{chatBotData?.chatbots.name}</h1>
-          <p className="text-sm text-gray-300">
-            🤖 Typically replies Instantly
-          </p>
-        </div>
+
+        <h1 className="truncate text-lg">{chatBotData?.chatbots.name}</h1>
+        <p className="text-sm text-gray-300">
+          🤖 Typically replies Instantly
+          <Messages messages={messages} />
+        </p>
       </div>
     </div>
   );
