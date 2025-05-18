@@ -88,13 +88,12 @@ export const INSERT_MESSAGE = gql`
 `;
 
 export const INSERT_GUEST = gql`
-  mutation insertGuests(
-    $name: String!
-    $email: String!
-    $created_at: DateTime!
-  ) {
-    insertGuest(name: $name, email: $email, created_at: $created_at) {
+  mutation MyMutation($name: String!, $email: String!, $created_at: DateTime!) {
+    insertGuests(name: $name, email: $email, created_at: $created_at) {
+      created_at
+      email
       id
+      name
     }
   }
 `;
