@@ -41,6 +41,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import PreviousMap_ from "postcss/lib/previous-map";
 
 const formSchema = z.object({
   message: z.string().min(2, "Your Message is too short!!"),
@@ -109,6 +110,57 @@ function ChatbotPage({ params: { id } }: { params: { id: string } }) {
 
     if (!message.trim()) {
       return;
+    }
+    // optimistic messag update ui whit user message
+    const userMessages: Message = {
+      id: Date.now(),
+      content: message,
+      created_at: new Date().toISOString(),
+      chat_sessions_id: chatId,
+      sender: "user",
+    };
+
+    const loadingMessages: Message = {
+      id: Date.now(),
+      content: message,
+      created_at: new Date().toISOString(),
+      chat_sessions_id: chatId,
+      sender: "ai",
+    };
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      userMessages,
+      loadingMessages,
+    ]);
+
+    try {
+      const response = await fetch("/api/send-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name,
+          chat_sessions_id: id,
+          chatbot_id: id,
+          content: message,
+        }),
+      });
+
+      const result = await response.json();
+
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === loadingMessages.id
+            ? { ...msg, content: result.content, id: result.id }
+            : msg
+        )
+      );
+
+      console.log("Får jag nåt", result);
+    } catch (error) {
+      console.error("Error sending message", error);
     }
   }
 

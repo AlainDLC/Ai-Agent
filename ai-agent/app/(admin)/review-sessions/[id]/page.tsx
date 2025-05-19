@@ -42,7 +42,7 @@ async function ReviewSessionPage({
       <h2 className="font-light  mt-2">
         Between {name} &{" "}
         <span className="font-extrabold">
-          {guestName} ({email})
+          {guestName} ({email}) {chatSessionId}
         </span>
       </h2>
       <hr className="my-10" />
